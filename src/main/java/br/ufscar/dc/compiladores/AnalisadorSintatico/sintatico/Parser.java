@@ -41,13 +41,9 @@ public class Parser {
             writer.println(token.toString());
         }
     }
-
-
-
-    // Método exemplo para análise de um elemento da gramática
     private void program() {
         if (currentToken != null && currentToken.getType().equals("algoritmo")) {
-            advance(); // Consume 'algoritmo'
+            advance(); // Consome 'algoritmo'
             declarations(); // Processa as declarações
             commands(); // Processa os comandos
             endAlgorithm(); // Verifica se 'fim_algoritmo' está presente
@@ -55,7 +51,6 @@ public class Parser {
             error("algoritmo");
         }
     }
-
     private void commands() {
         while (currentToken != null && !isEndOfBlock()) {
             switch (currentToken.getType()) {
@@ -77,7 +72,9 @@ public class Parser {
                 case "enquanto":
                     processWhileLoop();
                     break;
-
+                case "faca":
+                    processDoWhileLoop();
+                    break;
                 case "IDENT":
                     if (lookAhead() != null && lookAhead().getType().equals("<-")) {
                         processAssignment();
@@ -97,8 +94,10 @@ public class Parser {
                 currentToken.getType().equals("fim_caso") ||
                 currentToken.getType().equals("fim_para") ||
                 currentToken.getType().equals("fim_enquanto") ||
-                currentToken.getType().equals("senao");
+                currentToken.getType().equals("senao") ||
+                currentToken.getType().equals("ate");
     }
+
     private void processConditional() {
         advance(); // Consumir 'se'
         expression(); // Avaliar a condição
@@ -137,7 +136,7 @@ public class Parser {
         advance();  // Consumir o número ou identificador do caso
         if (currentToken.getType().equals("..")) {
             advance();  // Consumir '..'
-            advance();  // Consumir o segundo número do range
+            advance();
         }
         expect(":");
         processWrite();  // Processar o comando dentro do caso
@@ -164,13 +163,21 @@ public class Parser {
         expect("fim_enquanto");
     }
 
+    private void processDoWhileLoop() {
+        advance(); // Consumir 'faca'
+        commands(); // Processar os comandos dentro do loop
+        expect("ate");
+        expression(); // Avaliar a condição para término do loop
+    }
+
+
     private void processAssignment() {
         advance();
         if (currentToken != null && currentToken.getType().equals("<-")) {
             advance();
             expression();
         } else {
-            error("<-"); // Esperado operador de atribuição
+            error("<-");
         }
     }
     private Token lookAhead() {
@@ -182,12 +189,12 @@ public class Parser {
     }
 
     private void processRead() {
-        advance(); // Consume 'leia'
+        advance(); // Consome 'leia'
         if (currentToken != null && currentToken.getType().equals("(")) {
-            advance(); // Consume '('
+            advance();
             readArguments();
             if (currentToken != null && currentToken.getType().equals(")")) {
-                advance(); // Consume ')'
+                advance();
             } else {
                 error(")");
             }
@@ -201,7 +208,7 @@ public class Parser {
             if (currentToken != null && currentToken.getType().equals("IDENT")) {
                 advance();
             } else {
-                error("identificador"); // Esperado um identificador
+                error("identificador");
                 return;
             }
             if (currentToken != null && currentToken.getType().equals(",")) {
@@ -214,12 +221,12 @@ public class Parser {
 
 
     private void processWrite() {
-        advance(); // Consume 'escreva'
+        advance();
         if (currentToken != null && currentToken.getType().equals("(")) {
-            advance(); // Consume '('
-            writeArguments(); // Processa os argumentos dentro do comando escreva
+            advance();
+            writeArguments();
             if (currentToken != null && currentToken.getType().equals(")")) {
-                advance(); // Consume ')'
+                advance();
             } else {
                 error(")");
             }
@@ -252,7 +259,7 @@ public class Parser {
 
     private void declarations() {
         while (currentToken != null && currentToken.getType().equals("declare")) {
-            advance(); // Consome 'declare'
+            advance();
             declaration(); // Processa uma declaração individual
         }
     }
@@ -261,13 +268,13 @@ public class Parser {
         boolean first = true;
         do {
             if (!first && currentToken != null && currentToken.getType().equals(",")) {
-                advance(); // Consumes the comma
+                advance();
             } else if (!first) {
                 error(",");
                 return;
             }
             if (currentToken != null && currentToken.getType().equals("IDENT")) {
-                advance(); // Consumes the identifier
+                advance();
                 first = false;
             } else {
                 error("identifier");
@@ -289,7 +296,7 @@ public class Parser {
                 currentToken.getType().equals("real") ||
                 currentToken.getType().equals("literal") ||
                 currentToken.getType().equals("logico"))) {
-            advance(); // Consumes the type
+            advance();
         } else {
             error("type"); //
         }
@@ -297,9 +304,9 @@ public class Parser {
 
     private void endAlgorithm() {
         if (currentToken != null && currentToken.getType().equals("fim_algoritmo")) {
-            advance(); // Consume 'fim_algoritmo'
+            advance(); // Consome 'fim_algoritmo'
         } else {
-            error("fim_algoritmo"); // Esperado 'fim_algoritmo'
+            error("fim_algoritmo");
         }
     }
 
@@ -314,7 +321,7 @@ public class Parser {
         advance(); //
     }
     private void expression() {
-        // Comece com uma expressão que pode ser lógica ou relacional
+        // Comeca com uma expressão que pode ser lógica ou relacional
         logicalOrExpression();
     }
 
@@ -348,9 +355,7 @@ public class Parser {
     }
 
     private void relationalExpression() {
-        // Inicia com uma expressão aditiva
         additiveExpression();
-
         // Enquanto encontrar operadores relacionais, processa-os
         while (currentToken != null && isRelationalOperator(currentToken.getType())) {
             advance();  // Consome o operador relacional
@@ -361,11 +366,8 @@ public class Parser {
     private boolean isRelationalOperator(String type) {
         return type.equals("<") || type.equals(">") || type.equals("=") || type.equals("!=") || type.equals("<=") || type.equals(">=");
     }
-
     private void additiveExpression() {
-        // Inicia com uma expressão multiplicativa
         multiplicativeExpression();
-
         // Processa adição e subtração
         while (currentToken != null && (currentToken.getType().equals("+") || currentToken.getType().equals("-"))) {
             advance();  // Consome '+' ou '-'
@@ -374,7 +376,6 @@ public class Parser {
     }
 
     private void multiplicativeExpression() {
-        // Começa com uma expressão unária (que pode ser um identificador, número, ou uma expressão entre parênteses)
         unaryExpression();
 
         // Processa multiplicação e divisão
@@ -385,15 +386,22 @@ public class Parser {
     }
 
     private void unaryExpression() {
-        // Processa negações lógicas ou simplesmente avança para a expressão primária
-        if (currentToken != null && currentToken.getType().equals("nao")) {
-            advance(); // Consome 'nao'
-            unaryExpression(); // Aplica a negação ao próximo termo
-        } else {
-            primaryExpression();
+        if (currentToken != null) {
+            switch (currentToken.getType()) {
+                case "nao":
+                    advance(); // Consome 'nao'
+                    unaryExpression(); // Aplica a negação ao próximo termo
+                    break;
+                case "-":
+                    advance(); // Consome '-'
+                    primaryExpression(); // Continua com a expressão após o sinal negativo
+                    break;
+                default:
+                    primaryExpression(); // Processa a expressão primária normalmente
+                    break;
+            }
         }
     }
-
     private void primaryExpression() {
         switch (currentToken.getType()) {
             case "NUM_INT", "NUM_REAL" -> advance();  // Consumir número
@@ -408,12 +416,11 @@ public class Parser {
             case "(" -> {
                 advance();  // Consumir '('
                 expression();  // Processar a expressão interna
-                expect(")");  // Esperar por ')'
+                expect(")");
             }
             default -> error("número, identificador, cadeia ou '(' esperado");
         }
     }
-
     private void functionCall() {
         advance();  // Consumir nome da função
         advance();  // Consumir '('
@@ -425,9 +432,8 @@ public class Parser {
                 break;
             }
         }
-        expect(")");  // Esperar por ')'
+        expect(")");
     }
-
     private void expect(String expected) {
         if (currentToken != null && currentToken.getType().equals(expected)) {
             advance();
@@ -435,5 +441,4 @@ public class Parser {
             error(expected + " esperado");
         }
     }
-
 }
