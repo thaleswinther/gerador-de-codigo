@@ -57,18 +57,49 @@ public class Parser {
     }
 
     private void commands() {
-        while (currentToken != null && !currentToken.getType().equals("fim_algoritmo")) {
-            if (currentToken.getType().equals("leia")) {
-                processRead();
-            } else if (currentToken.getType().equals("escreva")) {
-                processWrite();
-            } else if (currentToken.getType().equals("IDENT") && lookAhead().getType().equals("<-")) {
-                processAssignment();
-            } else {
-                error("comando"); // Comando desconhecido ou inesperado
+        while (currentToken != null && !isEndOfBlock()) {
+            switch (currentToken.getType()) {
+                case "leia":
+                    processRead();
+                    break;
+                case "escreva":
+                    processWrite();
+                    break;
+                case "se":
+                    processConditional();
+                    break;
+                case "IDENT":
+                    if (lookAhead() != null && lookAhead().getType().equals("<-")) {
+                        processAssignment();
+                    } else {
+                        error("comando esperado após IDENT");
+                    }
+                    break;
+                default:
+                    error("comando desconhecido ou inesperado");
+                    break;
             }
         }
     }
+
+    private boolean isEndOfBlock() {
+        return currentToken.getType().equals("fim_algoritmo") || currentToken.getType().equals("fim_se") || currentToken.getType().equals("senao");
+    }
+
+    private void processConditional() {
+        advance(); // Consumir 'se'
+        expression(); // Avaliar a condição
+        expect("entao"); // Esperar por 'entao'
+        commands(); // Processar comandos dentro do 'se'
+
+        if (currentToken != null && currentToken.getType().equals("senao")) {
+            advance(); // Consumir 'senao'
+            commands(); // Processar comandos dentro do 'senao'
+        }
+
+        expect("fim_se"); // Esperar por 'fim_se'
+    }
+
 
     private void processAssignment() {
         advance(); // Consume identifier
@@ -340,9 +371,10 @@ public class Parser {
 
     private void expect(String expected) {
         if (currentToken != null && currentToken.getType().equals(expected)) {
-            advance(); // Consumir o esperado
+            advance();
         } else {
             error(expected + " esperado");
         }
     }
+
 }
