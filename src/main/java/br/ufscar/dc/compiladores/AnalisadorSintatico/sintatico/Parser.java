@@ -1,9 +1,6 @@
 package br.ufscar.dc.compiladores.AnalisadorSintatico.sintatico;
-
-
 import br.ufscar.dc.compiladores.AnalisadorSintatico.lexico.Token;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
@@ -74,16 +71,14 @@ public class Parser {
     }
 
     private void processAssignment() {
-        String variable = currentToken.getValue();
         advance(); // Consume identifier
         if (currentToken != null && currentToken.getType().equals("<-")) {
             advance(); // Consume '<-'
-            expression(); // Process the expression
+            expression(); // Process the entire expression
         } else {
             error("<-"); // Esperado operador de atribuição
         }
     }
-
     private Token lookAhead() {
         if (currentTokenIndex < tokens.size()) {
             return tokens.get(currentTokenIndex);
@@ -224,113 +219,128 @@ public class Parser {
         }
         advance(); // Opcional: pular o token problemático
     }
-
-    private void term() {
-        factor();
-        while (currentToken != null && (currentToken.getType().equals("+") || currentToken.getType().equals("-"))) {
-            String opType = currentToken.getType();
-            advance();  // Consumir '+' ou '-'
-            factor();
-        }
-    }
-
-    private void factor() {
-        primary();
-        while (currentToken != null && (currentToken.getType().equals("*") || currentToken.getType().equals("/"))) {
-            String opType = currentToken.getType();
-            advance();  // Consumir '*' ou '/'
-            primary();
-        }
-    }
-
-    private void primary() {
-        if (currentToken.getType().equals("NUM_INT") || currentToken.getType().equals("NUM_REAL") || currentToken.getType().equals("IDENT")) {
-            advance();  // Consumir o número ou identificador
-        } else if (currentToken.getType().equals("(")) {
-            advance();  // Consumir '('
-            expression();  // Processar a expressão interna
-            expect(")");  // Esperar por ')'
-        } else {
-            error("número, identificador ou '(' esperado");
-        }
-    }
-
     private void expression() {
+        // Comece com uma expressão que pode ser lógica ou relacional
         logicalOrExpression();
     }
 
     private void logicalOrExpression() {
+        // Processa a primeira parte da expressão lógica 'e'
         logicalAndExpression();
+
+        // Enquanto encontrar um operador 'ou', continue processando
         while (currentToken != null && currentToken.getType().equals("ou")) {
-            advance();  // Consumir 'ou'
+            advance();  // Consome 'ou'
             logicalAndExpression();
         }
     }
 
     private void logicalAndExpression() {
+        // Processa a primeira parte da expressão de comparação
         equalityExpression();
+
+        // Enquanto encontrar um operador 'e', continue processando
         while (currentToken != null && currentToken.getType().equals("e")) {
-            advance();  // Consumir 'e'
+            advance();  // Consome 'e'
             equalityExpression();
         }
     }
 
     private void equalityExpression() {
+        // Processa a primeira parte da expressão relacional
         relationalExpression();
+
+        // Processa operadores de igualdade e desigualdade
         while (currentToken != null && (currentToken.getType().equals("=") || currentToken.getType().equals("!="))) {
-            advance();  // Consumir '=' ou '!='
+            advance();  // Consome '=' ou '!='
             relationalExpression();
         }
     }
 
     private void relationalExpression() {
+        // Inicia com uma expressão aditiva
         additiveExpression();
-        while (currentToken != null && (currentToken.getType().equals("<") || currentToken.getType().equals(">"))) {
-            advance();  // Consumir '<' ou '>'
+
+        // Enquanto encontrar operadores relacionais, processa-os
+        while (currentToken != null && isRelationalOperator(currentToken.getType())) {
+            advance();  // Consome o operador relacional
             additiveExpression();
         }
     }
 
+    private boolean isRelationalOperator(String type) {
+        return type.equals("<") || type.equals(">") || type.equals("=") || type.equals("!=") || type.equals("<=") || type.equals(">=");
+    }
+
     private void additiveExpression() {
+        // Inicia com uma expressão multiplicativa
         multiplicativeExpression();
+
+        // Processa adição e subtração
         while (currentToken != null && (currentToken.getType().equals("+") || currentToken.getType().equals("-"))) {
-            advance();  // Consumir '+' ou '-'
+            advance();  // Consome '+' ou '-'
             multiplicativeExpression();
         }
     }
 
     private void multiplicativeExpression() {
+        // Começa com uma expressão unária (que pode ser um identificador, número, ou uma expressão entre parênteses)
         unaryExpression();
+
+        // Processa multiplicação e divisão
         while (currentToken != null && (currentToken.getType().equals("*") || currentToken.getType().equals("/"))) {
-            advance();  // Consumir '*' ou '/'
+            advance();  // Consome '*' ou '/'
             unaryExpression();
         }
     }
 
     private void unaryExpression() {
+        // Processa negações lógicas ou simplesmente avança para a expressão primária
         if (currentToken != null && currentToken.getType().equals("nao")) {
-            advance(); // Consumir 'nao'
-            unaryExpression(); // Aplicar 'nao' ao próximo termo
+            advance(); // Consome 'nao'
+            unaryExpression(); // Aplica a negação ao próximo termo
         } else {
             primaryExpression();
         }
     }
 
     private void primaryExpression() {
-        if (currentToken.getType().equals("NUM_INT") || currentToken.getType().equals("NUM_REAL") || currentToken.getType().equals("IDENT")) {
-            advance();  // Consumir o número ou identificador
-        } else if (currentToken.getType().equals("(")) {
-            advance();  // Consumir '('
-            expression();  // Processar a expressão interna
-            expect(")");  // Esperar por ')'
-        } else {
-            error("número, identificador ou '(' esperado");
+        switch (currentToken.getType()) {
+            case "NUM_INT", "NUM_REAL" -> advance();  // Consumir número
+            case "IDENT" -> {
+                if (lookAhead() != null && lookAhead().getType().equals("(")) {
+                    functionCall(); // Processar chamada de função se próximo token é '('
+                } else {
+                    advance();  // Consumir identificador
+                }
+            }
+            case "CADEIA" -> advance(); // Consumir literal de cadeia diretamente
+            case "(" -> {
+                advance();  // Consumir '('
+                expression();  // Processar a expressão interna
+                expect(")");  // Esperar por ')'
+            }
+            default -> error("número, identificador, cadeia ou '(' esperado");
         }
+    }
+
+    private void functionCall() {
+        advance();  // Consumir nome da função
+        advance();  // Consumir '('
+        while (currentToken != null && !currentToken.getType().equals(")")) {
+            expression();
+            if (currentToken != null && currentToken.getType().equals(",")) {
+                advance();  // Consumir ','
+            } else {
+                break;
+            }
+        }
+        expect(")");  // Esperar por ')'
     }
 
     private void expect(String expected) {
         if (currentToken != null && currentToken.getType().equals(expected)) {
-            advance();
+            advance(); // Consumir o esperado
         } else {
             error(expected + " esperado");
         }
