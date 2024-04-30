@@ -356,24 +356,34 @@ public class Parser {
 
     private void relationalExpression() {
         additiveExpression();
-        // Enquanto encontrar operadores relacionais, processa-os
+
         while (currentToken != null && isRelationalOperator(currentToken.getType())) {
             advance();  // Consome o operador relacional
-            additiveExpression();
+            additiveExpression();  // Continua com a próxima parte da expressão
         }
     }
 
     private boolean isRelationalOperator(String type) {
-        return type.equals("<") || type.equals(">") || type.equals("=") || type.equals("!=") || type.equals("<=") || type.equals(">=");
+        return type.equals("<") || type.equals(">") || type.equals("=") || type.equals("!=") ||
+                type.equals("<=") || type.equals(">=") || type.equals("%");
     }
+
     private void additiveExpression() {
         multiplicativeExpression();
-        // Processa adição e subtração
-        while (currentToken != null && (currentToken.getType().equals("+") || currentToken.getType().equals("-"))) {
-            advance();  // Consome '+' ou '-'
-            multiplicativeExpression();
+
+        while (currentToken != null && (currentToken.getType().equals("+") || currentToken.getType().equals("-") || currentToken.getType().equals("%"))) {
+            String type = currentToken.getType();
+            advance();  // Consome '+' ou '-' ou '%'
+            if (type.equals("%")) {
+                // Trata o operador módulo
+                primaryExpression(); // Isso deve ser ajustado se primário não for adequado
+            } else {
+                // Trata soma ou subtração
+                multiplicativeExpression();
+            }
         }
     }
+
 
     private void multiplicativeExpression() {
         unaryExpression();
