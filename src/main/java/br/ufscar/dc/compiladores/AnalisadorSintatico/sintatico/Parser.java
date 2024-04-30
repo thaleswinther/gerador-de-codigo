@@ -8,7 +8,7 @@ public class Parser {
     private final List<Token> tokens;
     private int currentTokenIndex = 0;
     private Token currentToken;
-    private final PrintWriter writer; // Para escrever no arquivo de saída
+    private final PrintWriter writer;
 
     public Parser(List<Token> tokens, PrintWriter writer) {
         this.tokens = tokens;
@@ -52,7 +52,7 @@ public class Parser {
             commands(); // Processa os comandos
             endAlgorithm(); // Verifica se 'fim_algoritmo' está presente
         } else {
-            error("algoritmo"); // Esperado 'algoritmo' no início
+            error("algoritmo");
         }
     }
 
@@ -68,6 +68,16 @@ public class Parser {
                 case "se":
                     processConditional();
                     break;
+                case "caso":
+                    processSwitchCase();
+                    break;
+                case "para":
+                    processForLoop();
+                    break;
+                case "enquanto":
+                    processWhileLoop();
+                    break;
+
                 case "IDENT":
                     if (lookAhead() != null && lookAhead().getType().equals("<-")) {
                         processAssignment();
@@ -81,15 +91,18 @@ public class Parser {
             }
         }
     }
-
     private boolean isEndOfBlock() {
-        return currentToken.getType().equals("fim_algoritmo") || currentToken.getType().equals("fim_se") || currentToken.getType().equals("senao");
+        return currentToken.getType().equals("fim_algoritmo") ||
+                currentToken.getType().equals("fim_se") ||
+                currentToken.getType().equals("fim_caso") ||
+                currentToken.getType().equals("fim_para") ||
+                currentToken.getType().equals("fim_enquanto") ||
+                currentToken.getType().equals("senao");
     }
-
     private void processConditional() {
         advance(); // Consumir 'se'
         expression(); // Avaliar a condição
-        expect("entao"); // Esperar por 'entao'
+        expect("entao");
         commands(); // Processar comandos dentro do 'se'
 
         if (currentToken != null && currentToken.getType().equals("senao")) {
@@ -97,15 +110,65 @@ public class Parser {
             commands(); // Processar comandos dentro do 'senao'
         }
 
-        expect("fim_se"); // Esperar por 'fim_se'
+        expect("fim_se");
+    }
+    private void processSwitchCase() {
+        advance();  // Consumir 'caso'
+        expression();  // Avaliar a variável do switch
+        expect("seja");  // Esperar por 'seja'
+
+        while (currentToken != null && !currentToken.getType().equals("senao") && !currentToken.getType().equals("fim_caso")) {
+            if (currentToken.getType().equals("NUM_INT") || currentToken.getType().equals("IDENT")) {
+                // Processar cada caso
+                processCase();
+            } else {
+                error("Esperado número ou identificador para caso");
+            }
+        }
+
+        if (currentToken != null && currentToken.getType().equals("senao")) {
+            advance();  // Consumir 'senao'
+            processWrite();  // Processar o comando dentro do senao
+        }
+
+        expect("fim_caso");  // Esperar por 'fim_caso'
+    }
+    private void processCase() {
+        advance();  // Consumir o número ou identificador do caso
+        if (currentToken.getType().equals("..")) {
+            advance();  // Consumir '..'
+            advance();  // Consumir o segundo número do range
+        }
+        expect(":");
+        processWrite();  // Processar o comando dentro do caso
     }
 
+    private void processForLoop() {
+        advance();  // Consumir 'para'
+        if (currentToken != null && currentToken.getType().equals("IDENT")) {
+            processAssignment();  // Processar a inicialização
+            expect("ate");
+            expression();  // Processar a condição de término
+            expect("faca");
+            commands();  // Processar os comandos dentro do loop
+            expect("fim_para");
+        } else {
+            error("identificador esperado após 'para'");
+        }
+    }
+    private void processWhileLoop() {
+        advance();  // Consumir 'enquanto'
+        expression();  // Avaliar a condição do loop
+        expect("faca");
+        commands();  // Processar os comandos dentro do loop
+        expect("fim_enquanto");
+    }
 
     private void processAssignment() {
-        advance(); // Consume identifier
+        advance();
         if (currentToken != null && currentToken.getType().equals("<-")) {
-            advance(); // Consume '<-'
-            expression(); // Process the entire expression
+            advance();
+            expression();
         } else {
             error("<-"); // Esperado operador de atribuição
         }
@@ -114,7 +177,7 @@ public class Parser {
         if (currentTokenIndex < tokens.size()) {
             return tokens.get(currentTokenIndex);
         } else {
-            return null; // No more tokens
+            return null;
         }
     }
 
@@ -126,23 +189,23 @@ public class Parser {
             if (currentToken != null && currentToken.getType().equals(")")) {
                 advance(); // Consume ')'
             } else {
-                error(")"); // Esperado ')'
+                error(")");
             }
         } else {
-            error("("); // Esperado '('
+            error("(");
         }
     }
 
     private void readArguments() {
         do {
             if (currentToken != null && currentToken.getType().equals("IDENT")) {
-                advance(); // Consume identifier
+                advance();
             } else {
                 error("identificador"); // Esperado um identificador
                 return;
             }
             if (currentToken != null && currentToken.getType().equals(",")) {
-                advance(); // Consume the comma
+                advance();
             } else {
                 break;
             }
@@ -158,10 +221,10 @@ public class Parser {
             if (currentToken != null && currentToken.getType().equals(")")) {
                 advance(); // Consume ')'
             } else {
-                error(")"); // Esperado ')'
+                error(")");
             }
         } else {
-            error("("); // Esperado '('
+            error("(");
         }
     }
 
@@ -189,7 +252,7 @@ public class Parser {
 
     private void declarations() {
         while (currentToken != null && currentToken.getType().equals("declare")) {
-            advance(); // Consume 'declare'
+            advance(); // Consome 'declare'
             declaration(); // Processa uma declaração individual
         }
     }
@@ -200,23 +263,23 @@ public class Parser {
             if (!first && currentToken != null && currentToken.getType().equals(",")) {
                 advance(); // Consumes the comma
             } else if (!first) {
-                error(","); // Esperado uma vírgula
+                error(",");
                 return;
             }
             if (currentToken != null && currentToken.getType().equals("IDENT")) {
                 advance(); // Consumes the identifier
                 first = false;
             } else {
-                error("identifier"); // Esperado um identificador
+                error("identifier");
                 return;
             }
         } while (currentToken != null && !currentToken.getType().equals(":"));
 
         if (currentToken != null && currentToken.getType().equals(":")) {
-            advance(); // Consumes ':'
+            advance(); // Consome ':'
             type(); // Processa o tipo da variável
         } else {
-            error(":"); // Esperado ':'
+            error(":");
         }
     }
 
@@ -228,7 +291,7 @@ public class Parser {
                 currentToken.getType().equals("logico"))) {
             advance(); // Consumes the type
         } else {
-            error("type"); // Esperado um tipo de dado
+            error("type"); //
         }
     }
 
@@ -248,7 +311,7 @@ public class Parser {
         } else {
             writer.println("Erro sintático: esperado '" + expected + "' mas nenhum token foi encontrado");
         }
-        advance(); // Opcional: pular o token problemático
+        advance(); //
     }
     private void expression() {
         // Comece com uma expressão que pode ser lógica ou relacional
@@ -276,14 +339,10 @@ public class Parser {
             equalityExpression();
         }
     }
-
     private void equalityExpression() {
-        // Processa a primeira parte da expressão relacional
         relationalExpression();
-
-        // Processa operadores de igualdade e desigualdade
-        while (currentToken != null && (currentToken.getType().equals("=") || currentToken.getType().equals("!="))) {
-            advance();  // Consome '=' ou '!='
+        while (currentToken != null && (currentToken.getType().equals("=") || currentToken.getType().equals("!=") || currentToken.getType().equals("<>"))) {
+            advance();  // Consome o operador
             relationalExpression();
         }
     }
