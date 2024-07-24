@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://www.maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>br.ufscar.dc.compiladores</groupId>
-    <artifactId>sintatico</artifactId>
+    <artifactId>semantico</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
@@ -28,6 +28,9 @@
                 <groupId>org.antlr</groupId>
                 <artifactId>antlr4-maven-plugin</artifactId>
                 <version>4.9.2</version>
+                <configuration>
+                    <visitor>true</visitor>
+                </configuration>
                 <executions>
                     <execution>
                         <id>antlr</id>
@@ -42,7 +45,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>br.ufscar.dc.compiladores.sintatico.Principal</mainClass>
+                            <mainClass>br.ufscar.dc.compiladores.semantico.Principal</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
@@ -61,4 +64,5 @@
             </plugin>
         </plugins>
     </build>
+    <name>semantico</name>
 </project>

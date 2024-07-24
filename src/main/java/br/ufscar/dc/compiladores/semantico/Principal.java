@@ -1,8 +1,9 @@
-package br.ufscar.dc.compiladores.sintatico;
+package br.ufscar.dc.compiladores.semantico;
 
 import org.antlr.v4.runtime.*;
 import java.io.FileWriter;
 import java.io.IOException;
+import br.ufscar.dc.compiladores.semantico.LAParser.ProgramaContext;
 
 public class Principal {
     public static void main(String[] args) {
@@ -23,12 +24,25 @@ public class Principal {
             CommonTokenStream tokens = new CommonTokenStream(lexer);
             LAParser parser = new LAParser(tokens);
             parser.setBuildParseTree(true); // garantir a construção de uma árvore de parse
+
             try (FileWriter writer = new FileWriter(outputFile)) {
                 CustomSyntaxErrorListener errorListener = new CustomSyntaxErrorListener(writer);
                 parser.removeErrorListeners(); // remove os ouvintes de erro padrão
                 parser.addErrorListener(errorListener); // adiciona o ouvinte de erro personalizado
                 
-                parser.programa(); // método de entrada da gramática
+                ProgramaContext arvore = parser.programa(); // método de entrada da gramática
+
+                // Realizar a análise semântica
+                
+                if (!errorListener.hasError()) {
+                    AnalisadorSemantico analisadorSemantico = new AnalisadorSemantico();
+                    analisadorSemantico.visitPrograma(arvore);
+                    for (String erro : AnalisadorSemantico.errosSemanticos) {
+                        writer.write(erro + "\n");
+                    }
+                }
+
+                writer.write("Fim da compilacao\n");
             }
         } catch (IOException e) {
             System.err.println("Erro ao acessar arquivos: " + e.getMessage());
@@ -37,7 +51,7 @@ public class Principal {
 
     // Classe interna para personalizar como os erros são reportados
     private static class CustomSyntaxErrorListener extends BaseErrorListener {
-        private FileWriter writer;
+        private final FileWriter writer;
         private boolean error;
 
         public CustomSyntaxErrorListener(FileWriter writer) {
@@ -74,6 +88,10 @@ public class Principal {
             } catch (IOException ex) {
                 System.err.println("Erro ao escrever no arquivo: " + ex.getMessage());
             }
+        }
+
+        public boolean hasError() {
+            return error;
         }
     }
 }
