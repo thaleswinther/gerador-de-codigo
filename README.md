@@ -1,4 +1,4 @@
-# Trabalho 2 - Construção de Compiladores (2024/1)
+# Trabalho 3 - Construção de Compiladores (2024/1)
 
 ## Integrantes do grupo
 - Arisa Abiko Sakaguti - 800357
@@ -40,12 +40,16 @@ Em Linux é recomendável extrair os arquivos de `casos-de-teste.zip` baixados p
 Também é possível mover o arquivo `AnalisadorSemantico.jar` para outro caminho que não seja o do projeto.\
 Com o ambiente configurado, basta rodar o seguinte comando e se tudo correr bem um arquivo de saída será gerado na pasta `temp`:
 
-``java -jar /caminho_absoluto/AnalisadorAnalisadorSemantico.jar /home/usuario/casos-de-teste/3.casos_teste_t3/entrada/entrada1.txt /home/usuario/temp/saida1.txt``
+```
+java -jar /caminho_absoluto/AnalisadorAnalisadorSemantico.jar /home/usuario/casos-de-teste/3.casos_teste_t3/entrada/entrada1.txt /home/usuario/temp/saida1.txt
+```
 
 #### Windows
 No Windows o processo é muito semelhante ao do Linux, sendo recomendável colocar a pasta `casos-de-teste` na raíz do seu sistema, juntamento com a pasta `temp`, onde serão salvas as saídas.\
 Sabendo onde está cada arquivo basta executar o seguinte comando no terminal:
 
-``java -jar c:\caminho_absoluto\AnalisadorLexico.jar c:\casos-de-teste\3.casos_teste_t3\entrada\entrada2.txt c:\temp\saida2.txt``
+```
+java -jar c:\caminho_absoluto\AnalisadorLexico.jar c:\casos-de-teste\3.casos_teste_t3\entrada\entrada2.txt c:\temp\saida2.txt
+```
 
 Para cada saída gerada é possível compará-la com a saída esperada acessando a pasta `casos-de-teste/3.casos_teste_t3/saida`.
