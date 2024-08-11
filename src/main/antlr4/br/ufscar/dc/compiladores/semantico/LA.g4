@@ -25,13 +25,13 @@ OP_RELACIONAL: '<=' | '>=' | '=' | '<' | '<>' | '>';
 OP_LOGICO: 'e' | 'ou' | 'nao';
 
 // Símbolos de Controle
-SIMBOLO_CONTROLE: ':' | ',' | '(' | ')' | '[' | ']' | '<-' | '&';
+SIMBOLO_CONTROLE: ':' | ',' | '(' | ')' | '[' | ']' | '<-';
 
 // Símbolos de Intervalo
 INTERVALO: '..';
 
 // Palavras reservadas e tokens
-PALAVRAS_RESERVADAS: 'algoritmo' | 'fim_algoritmo' | 'constante' | 'tipo' | 'var' |
+PALAVRAS_RESERVADAS: 'algoritmo' | 'fim_algoritmo' | 'var' |
                      'leia' | 'escreva' | 'se' | 'entao' | 'senao' | 'fim_se' | 'caso' | 'seja' | 'fim_caso' |
                      'para' | 'ate' | 'faca' | 'fim_para' | 'enquanto' | 'fim_enquanto' | 'registro' | 
                      'fim_registro' | 'retorne' |  'fim_procedimento' | 'fim_funcao';
@@ -43,9 +43,13 @@ REAL             : 'real';
 LOGICO           : 'logico';
 TRUE             : 'verdadeiro';
 FALSE            : 'falso';
+TIPO             : 'tipo';
+CONSTANTE        : 'constante';
 PROCEDIMENTO     : 'procedimento';
 FUNCAO           : 'funcao';
 PONTEIRO         : '^';
+ENDERECO         : '&';
+PONTO            : '.';
 
 IDENT: LETRA (LETRA | DIGITO | '_')*;
 NUMERO_INTEIRO: DIGITO+;
@@ -64,7 +68,7 @@ programa: declaracoes 'algoritmo' corpo 'fim_algoritmo' EOF;
 declaracoes: (declaracao_variavel | declaracao_global)*;
 
 // Declarações e Definições de Tipos
-declaracao_variavel: 'declare' variavel | 'constante' IDENT':' tipo_basico '=' tipo_constante | 'tipo' IDENT ':' tipo;
+declaracao_variavel: 'declare' variavel | 'constante' IDENT':' tipo_basico '=' tipo_constante | 'tipo' IDENT ':' estrutura;
 
 tipo: tipo_estendido | estrutura;
 tipo_basico: LITERAL | INTEIRO | REAL | LOGICO;
@@ -75,7 +79,7 @@ estrutura: 'registro' variavel* 'fim_registro';
 // Regra de declaração de funções e procedimentos.
 declaracao_global:
     'procedimento' IDENT'(' parametros? ')' corpo 'fim_procedimento' | 
-    'funcao' IDENT '(' parametros? ')' ':' tipo_estendido corpo 'fim_funcao';
+    'funcao' IDENT '(' parametros? ')' ':' tipo_estendido declaracao_variavel* comando* corpo 'fim_funcao';
 
 variavel: identificador (',' identificador)* ':' tipo;
 identificador: IDENT ('.' IDENT)* dimensao;
@@ -117,7 +121,7 @@ operador1: '+' | '-';
 operador2: '*' | '/';
 operador3: '%';
 parcela: operador_unario? parcela_unaria | parcela_nao_unaria;
-parcela_unaria: '^'? identificador | IDENT'(' expressao (',' expressao)* ')' | NUMERO_INTEIRO | NUMERO_REAL | CADEIA | '(' exp_unica=expressao')';
+parcela_unaria: '^'? identificador | cmdChamada | NUMERO_INTEIRO | NUMERO_REAL | '(' exp_unica=expressao')';
 parcela_nao_unaria: '&' identificador | CADEIA;
 expressao_relacional: expressao_aritmetica (operador_relacional expressao_aritmetica)?;
 operador_relacional: '=' | '<>' | '>=' | '<=' | '>' | '<';

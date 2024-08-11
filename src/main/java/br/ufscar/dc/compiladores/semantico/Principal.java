@@ -37,7 +37,7 @@ public class Principal {
                 if (!errorListener.hasError()) {
                     AnalisadorSemantico analisadorSemantico = new AnalisadorSemantico();
                     analisadorSemantico.visitPrograma(arvore);
-                    for (String erro : AnalisadorSemantico.errosSemanticos) {
+                    for (String erro : analisadorSemantico.errosSemanticos) {
                         writer.write(erro + "\n");
                     }
                 }
