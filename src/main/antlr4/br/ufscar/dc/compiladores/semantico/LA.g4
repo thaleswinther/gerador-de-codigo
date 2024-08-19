@@ -18,23 +18,20 @@ ESPACO: [ \t]+ -> skip;
 // Operadores Aritméticos
 OP_ARITMETICO: '+' | '-' | '*' | '/' | '%';
 
-// Operadores Relacionais
-OP_RELACIONAL: '<=' | '>=' | '=' | '<' | '<>' | '>';
-
 // Operadores Lógicos
-OP_LOGICO: 'e' | 'ou' | 'nao';
+OP_LOGICO: 'e' | 'ou';
 
 // Símbolos de Controle
-SIMBOLO_CONTROLE: ':' | ',' | '(' | ')' | '[' | ']' | '<-';
+SIMBOLO_CONTROLE: ':' | '(' | ')' | '[' | ']' | '<-';
 
 // Símbolos de Intervalo
 INTERVALO: '..';
 
 // Palavras reservadas e tokens
 PALAVRAS_RESERVADAS: 'algoritmo' | 'fim_algoritmo' | 'var' |
-                     'leia' | 'escreva' | 'se' | 'entao' | 'senao' | 'fim_se' | 'caso' | 'seja' | 'fim_caso' |
+                     'leia' | 'escreva' | 'se' | 'entao' | 'fim_se' | 'caso' | 'seja' | 'fim_caso' |
                      'para' | 'ate' | 'faca' | 'fim_para' | 'enquanto' | 'fim_enquanto' | 'registro' | 
-                     'fim_registro' | 'retorne' |  'fim_procedimento' | 'fim_funcao';
+                     'fim_registro' | 'retorne' | 'fim_procedimento' | 'fim_funcao';
 
 DECLARE          : 'declare';
 LITERAL          : 'literal';
@@ -43,6 +40,7 @@ REAL             : 'real';
 LOGICO           : 'logico';
 TRUE             : 'verdadeiro';
 FALSE            : 'falso';
+ELSE             : 'senao';
 TIPO             : 'tipo';
 CONSTANTE        : 'constante';
 PROCEDIMENTO     : 'procedimento';
@@ -50,6 +48,14 @@ FUNCAO           : 'funcao';
 PONTEIRO         : '^';
 ENDERECO         : '&';
 PONTO            : '.';
+VIRGULA          : ',';
+MENOR            : '<';
+MENORIGUAL       : '<=';
+MAIOR            : '>';
+MAIORIGUAL       : '>=';
+IGUAL            : '=';
+DIFERENTE        : '<>';
+NOT              : 'nao';
 
 IDENT: LETRA (LETRA | DIGITO | '_')*;
 NUMERO_INTEIRO: DIGITO+;
@@ -78,7 +84,7 @@ estrutura: 'registro' variavel* 'fim_registro';
 
 // Regra de declaração de funções e procedimentos.
 declaracao_global:
-    'procedimento' IDENT'(' parametros? ')' corpo 'fim_procedimento' | 
+    'procedimento' IDENT '(' parametros? ')' declaracao_variavel* comando* 'fim_procedimento'  | 
     'funcao' IDENT '(' parametros? ')' ':' tipo_estendido declaracao_variavel* comando* corpo 'fim_funcao';
 
 variavel: identificador (',' identificador)* ':' tipo;
@@ -100,9 +106,9 @@ cmdControleFluxo: cmdSe | cmdCaso | cmdPara | cmdEnquanto | cmdFaca;
 
 cmdLeitura: 'leia' '(' '^'? identificador (',' '^'? identificador)* ')';
 cmdEscrita: 'escreva' '(' expressao (',' expressao)* ')';
-cmdSe: 'se' expressao 'entao' comando* ('senao' comando*)? 'fim_se';
+cmdSe: 'se' expressao 'entao' cmdIf+=comando* ('senao' cmdElse+=comando*)? 'fim_se';
 cmdCaso: 'caso' expressao_aritmetica 'seja' selecao ('senao' comando*)? 'fim_caso';
-cmdPara: 'para' IDENT '<-' expressao_aritmetica 'ate' expressao_aritmetica 'faca' comando* 'fim_para';
+cmdPara: 'para' IDENT '<-' inicio=expressao_aritmetica 'ate' fim=expressao_aritmetica 'faca' comando* 'fim_para';
 cmdEnquanto: 'enquanto' expressao 'faca' comando* 'fim_enquanto';
 cmdFaca: 'faca' comando* 'ate' expressao;
 cmdAtribuicao: '^'? identificador '<-' expressao;
@@ -112,7 +118,7 @@ cmdRetorno: 'retorne' expressao;
 selecao: item_selecao*;
 item_selecao: constantes ':' comando*;
 constantes: intervalo_numerico (',' intervalo_numerico)*;
-intervalo_numerico: operador_unario? NUMERO_INTEIRO ( '..' operador_unario? NUMERO_INTEIRO)?;
+intervalo_numerico: operador_inicio=operador_unario? inicio=NUMERO_INTEIRO ('..' operador_fim=operador_unario? fim=NUMERO_INTEIRO)?; 
 operador_unario: '-';
 expressao_aritmetica: termo (operador1 termo)*;
 termo: fator (operador2 fator)*;

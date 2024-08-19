@@ -33,16 +33,21 @@ public class Principal {
                 ProgramaContext arvore = parser.programa(); // método de entrada da gramática
 
                 // Realizar a análise semântica
+                AnalisadorSemantico analisadorSemantico = new AnalisadorSemantico();
+                analisadorSemantico.visitPrograma(arvore);
                 
-                if (!errorListener.hasError()) {
-                    AnalisadorSemantico analisadorSemantico = new AnalisadorSemantico();
-                    analisadorSemantico.visitPrograma(arvore);
+                if (errorListener.hasError() || !analisadorSemantico.errosSemanticos.isEmpty()) {
+                    // Se houver erros léxicos, sintáticos ou semânticos, escreva-os no arquivo de saída
                     for (String erro : analisadorSemantico.errosSemanticos) {
                         writer.write(erro + "\n");
                     }
+                    writer.write("Fim da compilacao\n");
+                } else {
+                    // Se não houver erros, gerar o código C
+                    GeradorCodigoC geradorC = new GeradorCodigoC();
+                    geradorC.visitPrograma(arvore);
+                    writer.write(geradorC.saida.toString());
                 }
-
-                writer.write("Fim da compilacao\n");
             }
         } catch (IOException e) {
             System.err.println("Erro ao acessar arquivos: " + e.getMessage());
