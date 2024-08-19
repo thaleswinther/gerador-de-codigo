@@ -1,4 +1,4 @@
-package br.ufscar.dc.compiladores.semantico;
+package br.ufscar.dc.compiladores.geradorC;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -7,28 +7,28 @@ import java.util.function.Consumer;
 
 import org.antlr.v4.runtime.Token;
 
-import br.ufscar.dc.compiladores.semantico.LAParser.Tipo_basicoContext;
-import br.ufscar.dc.compiladores.semantico.LAParser.Tipo_estendidoContext;
-import br.ufscar.dc.compiladores.semantico.LAParser.VariavelContext;
-import br.ufscar.dc.compiladores.semantico.LAParser.Parcela_unariaContext;
-import br.ufscar.dc.compiladores.semantico.LAParser.Termo_logicoContext;
-import br.ufscar.dc.compiladores.semantico.LAParser.ExpressaoContext;
-import br.ufscar.dc.compiladores.semantico.LAParser.Fator_logicoContext;
-import br.ufscar.dc.compiladores.semantico.LAParser.Parcela_logicaContext;
-import br.ufscar.dc.compiladores.semantico.LAParser.Expressao_relacionalContext;
-import br.ufscar.dc.compiladores.semantico.LAParser.Expressao_aritmeticaContext;
-import br.ufscar.dc.compiladores.semantico.LAParser.TermoContext;
-import br.ufscar.dc.compiladores.semantico.LAParser.FatorContext;
-import br.ufscar.dc.compiladores.semantico.LAParser.ParcelaContext;
-import br.ufscar.dc.compiladores.semantico.LAParser.Parcela_nao_unariaContext;
-import br.ufscar.dc.compiladores.semantico.LAParser.IdentificadorContext;
-import br.ufscar.dc.compiladores.semantico.LAParser.DeclaracoesContext;
-import br.ufscar.dc.compiladores.semantico.LAParser.Declaracao_variavelContext;
-import br.ufscar.dc.compiladores.semantico.LAParser.CmdAtribuicaoContext;
-import br.ufscar.dc.compiladores.semantico.LAParser.CmdChamadaContext;
-import br.ufscar.dc.compiladores.semantico.LAParser.Declaracao_globalContext;
-import br.ufscar.dc.compiladores.semantico.LAParser.CorpoContext;
-import br.ufscar.dc.compiladores.semantico.TabelaDeSimbolos.TipoSimbolo;
+import br.ufscar.dc.compiladores.geradorC.LAParser.Tipo_basicoContext;
+import br.ufscar.dc.compiladores.geradorC.LAParser.Tipo_estendidoContext;
+import br.ufscar.dc.compiladores.geradorC.LAParser.VariavelContext;
+import br.ufscar.dc.compiladores.geradorC.LAParser.Parcela_unariaContext;
+import br.ufscar.dc.compiladores.geradorC.LAParser.Termo_logicoContext;
+import br.ufscar.dc.compiladores.geradorC.LAParser.ExpressaoContext;
+import br.ufscar.dc.compiladores.geradorC.LAParser.Fator_logicoContext;
+import br.ufscar.dc.compiladores.geradorC.LAParser.Parcela_logicaContext;
+import br.ufscar.dc.compiladores.geradorC.LAParser.Expressao_relacionalContext;
+import br.ufscar.dc.compiladores.geradorC.LAParser.Expressao_aritmeticaContext;
+import br.ufscar.dc.compiladores.geradorC.LAParser.TermoContext;
+import br.ufscar.dc.compiladores.geradorC.LAParser.FatorContext;
+import br.ufscar.dc.compiladores.geradorC.LAParser.ParcelaContext;
+import br.ufscar.dc.compiladores.geradorC.LAParser.Parcela_nao_unariaContext;
+import br.ufscar.dc.compiladores.geradorC.LAParser.IdentificadorContext;
+import br.ufscar.dc.compiladores.geradorC.LAParser.DeclaracoesContext;
+import br.ufscar.dc.compiladores.geradorC.LAParser.Declaracao_variavelContext;
+import br.ufscar.dc.compiladores.geradorC.LAParser.CmdAtribuicaoContext;
+import br.ufscar.dc.compiladores.geradorC.LAParser.CmdChamadaContext;
+import br.ufscar.dc.compiladores.geradorC.LAParser.Declaracao_globalContext;
+import br.ufscar.dc.compiladores.geradorC.LAParser.CorpoContext;
+import br.ufscar.dc.compiladores.geradorC.TabelaDeSimbolos.TipoSimbolo;
 
 public class AnalisadorSemantico extends LABaseVisitor<Void> {
 

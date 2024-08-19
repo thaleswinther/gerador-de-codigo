@@ -1,9 +1,9 @@
-package br.ufscar.dc.compiladores.semantico;
+package br.ufscar.dc.compiladores.geradorC;
 
 import org.antlr.v4.runtime.*;
 import java.io.FileWriter;
 import java.io.IOException;
-import br.ufscar.dc.compiladores.semantico.LAParser.ProgramaContext;
+import br.ufscar.dc.compiladores.geradorC.LAParser.ProgramaContext;
 
 public class Principal {
     public static void main(String[] args) {

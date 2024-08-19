@@ -1,4 +1,4 @@
-package br.ufscar.dc.compiladores.semantico;
+package br.ufscar.dc.compiladores.geradorC;
 
 import java.util.LinkedList;
 
