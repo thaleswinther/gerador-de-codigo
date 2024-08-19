@@ -1,4 +1,4 @@
-# Trabalho 3 - Construção de Compiladores (2024/1)
+# Trabalho 5 - Construção de Compiladores (2024/1)
 
 ## Integrantes do grupo
 - Arisa Abiko Sakaguti - 800357
@@ -6,9 +6,8 @@
 - Thales Winther - 802499
 
 ## Contexto
-O trabalho 3 (T3) da disciplina consistiu em implementar um analisador semântico para a linguagem LA (Linguagem Algorítmica) 
-desenvolvida pelo prof. Jander, no âmbito do DC/UFSCar. O analisador semântico é capaz de ler um programa-fonte e indificar onde existe
-um erro semântico, indicando a linha e o lexema que causou a detecção do erro
+O trabalho 5 (T5) da disciplina consistiu em implementar um gerador de código para a linguagem LA (Linguagem Algorítmica) 
+desenvolvida pelo prof. Jander, no âmbito do DC/UFSCar. O gerador de código é capaz de ler um programa-fonte e produzir código executável em C equivalente ao programa de entrada.
 
 ## Documentação externa
 
@@ -33,15 +32,15 @@ Para compilar e executar o analisador pela própria IDE é preciso seguir as eta
 - Por fim, basta clicar no botão `Run` e se tudo correr como o esperado o programa analisará o Argumento 1 e criará a sáida como sendo o Argumento 2
 
 ### Execução
-Para a execução do analisador semântico em uma linha de comando, siga as seguintes instruções para os respectivos sistemas operacionais:
+Para a execução do gerador de código em uma linha de comando, siga as seguintes instruções para os respectivos sistemas operacionais:
 
 #### Linux
 Em Linux é recomendável extrair os arquivos de `casos-de-teste.zip` baixados para a home do seu usuário, assim como criar uma pasta `temp` no mesmo diretório para armazenar as saídas geradas.\
-Também é possível mover o arquivo `AnalisadorSemantico.jar` para outro caminho que não seja o do projeto.\
+Também é possível mover o arquivo `gerador-de-codigo.jar` para outro caminho que não seja o do projeto.\
 Com o ambiente configurado, basta rodar o seguinte comando e se tudo correr bem um arquivo de saída será gerado na pasta `temp`:
 
 ```
-java -jar /caminho_absoluto/AnalisadorAnalisadorSemantico.jar /home/usuario/casos-de-teste/3.casos_teste_t3/entrada/entrada1.txt /home/usuario/temp/saida1.txt
+java -jar /caminho_absoluto/gerador-de-codigo.jarr /home/usuario/casos-de-teste/5.casos_teste_t5/entrada/entrada1.txt /home/usuario/temp/saida1.txt
 ```
 
 #### Windows
@@ -49,7 +48,7 @@ No Windows o processo é muito semelhante ao do Linux, sendo recomendável coloc
 Sabendo onde está cada arquivo basta executar o seguinte comando no terminal:
 
 ```
-java -jar c:\caminho_absoluto\AnalisadorLexico.jar c:\casos-de-teste\3.casos_teste_t3\entrada\entrada2.txt c:\temp\saida2.txt
+java -jar c:\caminho_absoluto\AnalisadorLexico.jar c:\casos-de-teste\5.casos_teste_t5\entrada\entrada2.txt c:\temp\saida2.txt
 ```
 
-Para cada saída gerada é possível compará-la com a saída esperada acessando a pasta `casos-de-teste/3.casos_teste_t3/saida`.
+Para cada saída gerada é possível compará-la com a saída esperada acessando a pasta `casos-de-teste/5.casos_teste_t5/saida`.
